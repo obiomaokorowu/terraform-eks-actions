@@ -1,5 +1,4 @@
 name: Deploy EKS via Terraform
-
 on:
   push:
     branches: [main]
