@@ -59,8 +59,6 @@ module "eks" {
   }
 }
 
-data "aws_caller_identity" "current" {}
-
 output "cluster_name" {
   value = module.eks.cluster_name
 }
