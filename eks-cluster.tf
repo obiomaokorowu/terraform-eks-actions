@@ -1,6 +1,6 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.10.0" # Latest as of July 2024
+  version = "20.10.0" 
 
   cluster_name                   = "app-eks-cluster"
   cluster_version                = "1.30"
@@ -32,9 +32,7 @@ module "eks" {
       min_size     = 1
       max_size     = 3
       desired_size = 2
-
-      instance_types = ["t3.small"] # t2.small is deprecated
-      capacity_type  = "ON_DEMAND"
+      instance_types = ["t3.small"] 
       key_name       = "may_key"
 
     }
