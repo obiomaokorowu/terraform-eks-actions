@@ -31,7 +31,21 @@ module "eks" {
   endpoint_private_access = false
   endpoint_public_access  = true
   enable_cluster_creator_admin_permissions = true
-  access_entries = {}
+  access_entries = {
+    admin = {
+      kubernetes_groups = ["system:masters"]
+      principal_arn     = "arn:aws:iam::361769567498:role/EKSAdminRole"
+      type              = "STANDARD"
+      policy_associations = {
+        view = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
+        }
+        full = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSFullAccessPolicy"
+        }
+      }
+    }
+  }
 
   tags = {
     environment = "development"
