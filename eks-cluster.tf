@@ -25,8 +25,7 @@ module "eks" {
   kubernetes_version = "1.31"
   subnet_ids         = module.myapp-vpc.private_subnets
   vpc_id             = module.myapp-vpc.vpc_id
-  account_id = data.aws_caller_identity.current.account_id
-  partition  = data.aws_partition.current.partition 
+  cluster_name = "app-eks-cluster"
   endpoint_private_access = false
   endpoint_public_access  = true
   enable_cluster_creator_admin_permissions = true
