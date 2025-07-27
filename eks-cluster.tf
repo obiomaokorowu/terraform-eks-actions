@@ -27,11 +27,12 @@ module "eks" {
   subnet_ids         = module.myapp-vpc.private_subnets
   vpc_id             = module.myapp-vpc.vpc_id
 
-  access_config = {
-    public_access  = true
-    private_access = false
-  }
-
+  #access_config = {
+  #  public_access  = true
+  #  private_access = false
+  #}
+  endpoint_private_access = false
+  endpoint_public_access  = true
   enable_cluster_creator_admin_permissions = true
 
   tags = {
