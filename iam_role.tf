@@ -4,7 +4,7 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_flow_log" "this" {
   iam_role_arn    = aws_iam_role.vpc_flow_log.arn
-  log_destination = "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:${aws_cloudwatch_log_group.vpc_flow_log.name}:*"
+  log_destination = "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:${aws_cloudwatch_log_group.vpc_flow_log.arn}:*"
   traffic_type    = "ALL"
   vpc_id          = module.myapp-vpc.vpc_id
 }
