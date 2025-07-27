@@ -11,7 +11,6 @@ env:
   AWS_REGION: us-east-1
   BUCKET_NAME: realcloud-tfstate-bucket-001
   TF_KEY: eks/terraform.tfstate
-  TF_REGION: us-east-2
 
 jobs:
   terraform:
@@ -26,28 +25,29 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::361769567498:role/GitHubActionsTerraformRole
-          aws-region: us-east-2
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.4
 
       - name: Terraform Init
         run: |
           terraform init \
           -backend-config="bucket=${{ env.BUCKET_NAME }}" \
-          -backend-config="key=${{ env.TF_KEY }}"  \
-          -backend-config="region=us-east-1"
+          -backend-config="key=${{ env.TF_KEY }}" \
+          -backend-config="region=${{ env.AWS_REGION }}"
 
       - name: Terraform Validate
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
 
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
         if: github.ref == 'refs/heads/main'
 
-#      - name: Terraform Apply
-#        run: terraform apply -auto-approve
-#        if: github.ref == 'refs/heads/main'
+      - name: Output Cluster Details
+        run: terraform output
