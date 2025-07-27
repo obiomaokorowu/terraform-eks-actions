@@ -27,8 +27,23 @@ module "eks" {
   vpc_id             = module.myapp-vpc.vpc_id
   endpoint_private_access = false
   endpoint_public_access  = true
-  enable_cluster_creator_admin_permissions = true
-  access_entries = {}
+  enable_cluster_creator_admin_permissions = false
+  access_entries = {
+  github-actions-admin = {
+    principal_arn     = "arn:aws:iam::361769567498:role/github-actions-terraform"
+    kubernetes_groups = ["system:masters"]
+    type              = "STANDARD"
+    policy_associations = {
+      admin = {
+        policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+        access_scope = {
+          type = "cluster"
+        }
+      }
+    }
+  }
+}
+
   tags = {
     environment = "development"
     application = "app"
@@ -42,6 +57,7 @@ module "eks" {
       desired_size   = 3
       instance_types = ["t2.small"]
       key_name       = "may_key"
+      iam_role_additional_policies = {}
       account_id = "361769567498"
       partition  = "aws"
       launch_template = {
