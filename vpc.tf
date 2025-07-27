@@ -12,20 +12,31 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-2"  # Confirm or adjust
+  region = "us-east-2"
 }
 
-variable vpc_cidr_block {}
-variable private_subnet_cidr_blocks {}
-variable public_subnet_cidr_blocks {}
+variable "vpc_cidr_block" {
+  description = "CIDR block for the VPC"
+  type        = string
+}
 
-data "aws_availability_zones" "available" {}
+variable "private_subnet_cidr_blocks" {
+  description = "CIDR blocks for private subnets"
+  type        = list(string)
+}
 
+variable "public_subnet_cidr_blocks" {
+  description = "CIDR blocks for public subnets"
+  type        = list(string)
+}
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
 
 module "myapp-vpc" {
-  source =   "terraform-aws-modules/vpc/aws"
-  version = "5.21.0"
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.8.1"
 
   name = "myapp-vpc"
   cidr = var.vpc_cidr_block
