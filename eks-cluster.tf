@@ -16,34 +16,34 @@ data "aws_eks_cluster_auth" "app-cluster" {
 output "cluster_id" {
   value = module.eks.cluster_id
 }
-partition  = "aws"
-account_id = "361769567498
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.0.4"
 
   name               = "app-eks-cluster"  
-  kubernetes_version = "1.31"
+  kubernetes_version = "1.29" # Updated to a supported version
   subnet_ids         = module.myapp-vpc.private_subnets
   vpc_id             = module.myapp-vpc.vpc_id
   endpoint_private_access = false
   endpoint_public_access  = true
   enable_cluster_creator_admin_permissions = false
+
   access_entries = {
-  github-actions-admin = {
-    principal_arn     = "arn:aws:iam::361769567498:role/github-actions-terraform"
-    kubernetes_groups = ["system:masters"]
-    type              = "STANDARD"
-    policy_associations = {
-      admin = {
-        policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-        access_scope = {
-          type = "cluster"
+    github-actions-admin = {
+      principal_arn     = "arn:aws:iam::361769567498:role/github-actions-terraform"
+      kubernetes_groups = ["system:masters"]
+      type              = "STANDARD"
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
         }
       }
     }
   }
-}
 
   tags = {
     environment = "development"
@@ -58,11 +58,11 @@ module "eks" {
       desired_size   = 3
       instance_types = ["t2.small"]
       key_name       = "may_key"
-      iam_role_additional_policies = {}
-      launch_template = {
-        elastic_gpu_specifications    = null
-        elastic_inference_accelerator = null
-      }
+      
+      # These belong here in the node group configuration
+      partition  = "aws"
+      account_id = "361769567498"
+
     }
   }
 
