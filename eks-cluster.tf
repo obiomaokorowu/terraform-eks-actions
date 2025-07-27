@@ -12,9 +12,10 @@ data "aws_eks_cluster_auth" "app-cluster" {
   name = module.eks.cluster_name
 }
 
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.15.3"
+  version = "19.15.3"  # Verified stable version
 
   cluster_name    = "app-eks-cluster"
   cluster_version = "1.28"
@@ -25,16 +26,17 @@ module "eks" {
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = false
 
-  # Enable cluster creator admin permissions
-  enable_cluster_creator_admin_permissions = true
+  # CORRECT way to enable creator admin access in v19.15.3
+  manage_aws_auth_configmap = true
 
-  # Alternative method to ensure creator admin access
-  cluster_admins = {
-    admin = {
-      username = data.aws_caller_identity.current.arn
+  # Map the current user as cluster admin
+  aws_auth_users = [
+    {
+      userarn  = data.aws_caller_identity.current.arn
+      username = split("/", data.aws_caller_identity.current.arn)[length(split("/", data.aws_caller_identity.current.arn)) - 1]
       groups   = ["system:masters"]
     }
-  }
+  ]
 
   # Enable IAM Roles for Service Accounts
   enable_irsa = true
@@ -47,12 +49,12 @@ module "eks" {
       max_size       = 3
       desired_size   = 2
       key_name       = "may_key"
-      partition      = "aws"
+
+      # Required to avoid the count argument error
+      partition = "aws"
 
       iam_role_additional_policies = {
         # Add any additional policies if needed
-        # Example:
-        # AmazonS3ReadOnlyAccess = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
       }
     }
   }
