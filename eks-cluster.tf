@@ -41,6 +41,9 @@ module "eks" {
       desired_size   = 3
       instance_types = ["t2.small"]
       key_name       = "may_key"
+      account_id = data.aws_caller_identity.current.account_id
+      partition  = data.aws_partition.current.partition
+
       launch_template = {
         elastic_gpu_specifications    = null
         elastic_inference_accelerator = null
