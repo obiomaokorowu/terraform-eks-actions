@@ -49,7 +49,7 @@ jobs:
 #        run: terraform apply -auto-approve tfplan
 #        if: github.ref == 'refs/heads/main'
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve tfplan
+        run: terraform destroy -auto-approve
         if: github.ref == 'refs/heads/main'
 
       - name: Output Cluster Details
