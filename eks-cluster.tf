@@ -1,83 +1,84 @@
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.app-cluster.endpoint
-  token                  = data.aws_eks_cluster_auth.app-cluster.token
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.app-cluster.certificate_authority[0].data)
-}
-
-data "aws_eks_cluster" "app-cluster" {
-  name = module.eks.cluster_name
-}
-
-data "aws_eks_cluster_auth" "app-cluster" {
-  name = module.eks.cluster_name
-}
-
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.15.3"  # Verified stable version
+  version = "20.10.0" # Latest as of July 2024
 
-  cluster_name    = "app-eks-cluster"
-  cluster_version = "1.28"
+  cluster_name                   = "app-eks-cluster"
+  cluster_version                = "1.30"
+  cluster_endpoint_public_access = true
 
   vpc_id     = module.myapp-vpc.vpc_id
   subnet_ids = module.myapp-vpc.private_subnets
 
-  cluster_endpoint_public_access  = true
-  cluster_endpoint_private_access = false
+  # Modern auth configuration 
+  enable_cluster_creator_admin_permissions = true
 
-  # CORRECT way to enable creator admin access in v19.15.3
+  # Alternative legacy auth mapping (still supported)
   manage_aws_auth_configmap = true
-
-  # Map the current user as cluster admin
   aws_auth_users = [
     {
       userarn  = data.aws_caller_identity.current.arn
-      username = split("/", data.aws_caller_identity.current.arn)[length(split("/", data.aws_caller_identity.current.arn)) - 1]
+      username = element(split("/", data.aws_caller_identity.current.arn), length(split("/", data.aws_caller_identity.current.arn)) - 1)
       groups   = ["system:masters"]
     }
   ]
 
-  # Enable IAM Roles for Service Accounts
-  enable_irsa = true
+  # Modern addon management
+  cluster_addons = {
+    coredns    = { most_recent = true }
+    kube-proxy = { most_recent = true }
+    vpc-cni    = { 
+      most_recent    = true
+      configuration_values = jsonencode({
+        env = {
+          ENABLE_POD_ENI = "true"
+        }
+      })
+    }
+  }
 
   eks_managed_node_groups = {
     workers = {
-      name           = "worker-nodes"
-      instance_types = ["t2.small"]
-      min_size       = 1
-      max_size       = 3
-      desired_size   = 2
+      name         = "worker-nodes"
+      min_size     = 1
+      max_size     = 3
+      desired_size = 2
+
+      instance_types = ["t3.small"] 
+      capacity_type  = "ON_DEMAND"
       key_name       = "may_key"
 
-      # Required to avoid the count argument error
-      partition = "aws"
-
-      iam_role_additional_policies = {
-        # Add any additional policies if needed
+      # Modern launch template
+      create_launch_template = true
+      launch_template_tags  = {
+        Name = "worker-nodes"
       }
     }
   }
 
   tags = {
+    Terraform   = "true"
     Environment = "development"
-    Application = "app"
-    Team        = "devops"
   }
 }
 
-output "cluster_name" {
-  value = module.eks.cluster_name
+# Supporting resources
+data "aws_caller_identity" "current" {}
+
+# Kubernetes provider configuration
+data "aws_eks_cluster" "this" {
+  name = module.eks.cluster_name
 }
 
-output "cluster_endpoint" {
-  value = module.eks.cluster_endpoint
+data "aws_eks_cluster_auth" "this" {
+  name = module.eks.cluster_name
 }
 
-output "cluster_security_group_id" {
-  value = module.eks.cluster_security_group_id
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.this.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.this.token
 }
 
-output "configure_kubectl" {
+output "kubeconfig" {
   value = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
 }
