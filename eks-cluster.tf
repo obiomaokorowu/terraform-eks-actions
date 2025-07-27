@@ -12,16 +12,6 @@ module "eks" {
   # Modern auth configuration (recommended approach)
   enable_cluster_creator_admin_permissions = true
 
-  # Alternative legacy auth mapping (still supported)
-  manage_aws_auth_configmap = true
-  aws_auth_users = [
-    {
-      userarn  = data.aws_caller_identity.current.arn
-      username = element(split("/", data.aws_caller_identity.current.arn), length(split("/", data.aws_caller_identity.current.arn)) - 1)
-      groups   = ["system:masters"]
-    }
-  ]
-
   # Modern addon management
   cluster_addons = {
     coredns    = { most_recent = true }
