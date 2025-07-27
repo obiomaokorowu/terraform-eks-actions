@@ -28,6 +28,7 @@ module "eks" {
   endpoint_private_access = false
   endpoint_public_access  = true
   enable_cluster_creator_admin_permissions = true
+  access_entries = {}
   tags = {
     environment = "development"
     application = "app"
@@ -41,9 +42,8 @@ module "eks" {
       desired_size   = 3
       instance_types = ["t2.small"]
       key_name       = "may_key"
-      account_id = data.aws_caller_identity.current.account_id
-      partition  = data.aws_partition.current.partition
-
+      account_id = "361769567498"
+      partition  = "aws"
       launch_template = {
         elastic_gpu_specifications    = null
         elastic_inference_accelerator = null
