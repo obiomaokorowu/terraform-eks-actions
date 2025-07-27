@@ -13,10 +13,6 @@ data "aws_eks_cluster_auth" "app-cluster" {
   name = module.eks.cluster_id
   depends_on = [module.eks]
 }
-data "aws_caller_identity" "current" {}
-
-data "aws_partition" "current" {}
-
 output "cluster_id" {
   value = module.eks.cluster_id
 }
