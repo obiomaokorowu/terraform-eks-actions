@@ -37,11 +37,6 @@ module "eks" {
       capacity_type  = "ON_DEMAND"
       key_name       = "may_key"
 
-      # Modern launch template
-      create_launch_template = true
-      launch_template_tags  = {
-        Name = "worker-nodes"
-      }
     }
   }
 
