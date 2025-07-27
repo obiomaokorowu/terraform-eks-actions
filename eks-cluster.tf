@@ -22,12 +22,13 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.0.0"
 
-  name                   = "app-eks-cluster"
-  kubernetes_version     = "1.31"
-  subnet_ids             = module.myapp-vpc.private_subnets
-  vpc_id                 = module.myapp-vpc.vpc_id
-  cluster_endpoint_access = {
-    public_access = true
+  name               = "app-eks-cluster"
+  kubernetes_version = "1.31"
+  subnet_ids         = module.myapp-vpc.private_subnets
+  vpc_id             = module.myapp-vpc.vpc_id
+  access_config = {
+    public_access  = true
+    private_access = false
   }
   enable_cluster_creator_admin_permissions = true
 
@@ -41,7 +42,7 @@ module "eks" {
     worker-nodes = {
       min_size       = 1
       max_size       = 3
-      desired_size   = 2
+      desired_size   = 3
       instance_types = ["t2.small"]
       key_name       = "may_key"
       launch_template = {
