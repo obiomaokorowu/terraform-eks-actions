@@ -1,5 +1,18 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 6.0.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.0.0"
+    }
+  }
+}
+
 provider "aws" {
-  region = "us-east-2"
+  region = "us-east-2"  # Confirm or adjust
 }
 
 variable vpc_cidr_block {}
@@ -7,6 +20,7 @@ variable private_subnet_cidr_blocks {}
 variable public_subnet_cidr_blocks {}
 
 data "aws_availability_zones" "available" {}
+
 
 
 module "myapp-vpc" {
@@ -36,5 +50,8 @@ module "myapp-vpc" {
     "kubernetes.io/cluster/app-eks-cluster" = "shared"
     "kubernetes.io/role/internal-elb" = 1
   }
+}
 
+data "aws_availability_zones" "available" {
+  state = "available"
 }
