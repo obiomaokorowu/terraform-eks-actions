@@ -1,8 +1,7 @@
 provider "kubernetes" {
-  #load_config_file = "false"
-  host = data.aws_eks_cluster.app-cluster.endpoint
-  token = data.aws_eks_cluster_auth.app-cluster.token
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.app-cluster.certificate_authority.0.data)
+  host                   = data.aws_eks_cluster.app-cluster.endpoint
+  token                  = data.aws_eks_cluster_auth.app-cluster.token
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.app-cluster.certificate_authority[0].data)
 }
 
 data "aws_eks_cluster" "app-cluster" {
@@ -10,18 +9,18 @@ data "aws_eks_cluster" "app-cluster" {
   depends_on = [module.eks]
 }
 
-
 data "aws_eks_cluster_auth" "app-cluster" {
   name = module.eks.cluster_name
   depends_on = [module.eks]
 }
+
 output "cluster_id" {
   value = data.aws_eks_cluster.app-cluster.id
 }
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.36.0"
+  version = "21.0.0"
 
   cluster_name = "app-eks-cluster"
   cluster_version = "1.31"
@@ -44,8 +43,8 @@ module "eks" {
       instance_types = ["t2.small"]
       key_name       = "may_key"
       launch_template = {
-        elastic_gpu_specifications = null  # Disable
-        elastic_inference_accelerator = null  # Disable
+        elastic_gpu_specifications = null
+        elastic_inference_accelerator = null
       }
     }
   }
