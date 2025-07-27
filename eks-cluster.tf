@@ -5,28 +5,30 @@ provider "kubernetes" {
 }
 
 data "aws_eks_cluster" "app-cluster" {
-  name = module.eks.cluster_name
+  name = module.eks.cluster_id
   depends_on = [module.eks]
 }
 
 data "aws_eks_cluster_auth" "app-cluster" {
-  name = module.eks.cluster_name
+  name = module.eks.cluster_id
   depends_on = [module.eks]
 }
 
 output "cluster_id" {
-  value = data.aws_eks_cluster.app-cluster.id
+  value = module.eks.cluster_id
 }
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.0.0"
 
-  cluster_name = "app-eks-cluster"
-  cluster_version = "1.31"
-  subnet_ids = module.myapp-vpc.private_subnets
-  vpc_id = module.myapp-vpc.vpc_id
-  cluster_endpoint_public_access = true
+  name                   = "app-eks-cluster"
+  kubernetes_version     = "1.31"
+  subnet_ids             = module.myapp-vpc.private_subnets
+  vpc_id                 = module.myapp-vpc.vpc_id
+  cluster_endpoint_access = {
+    public_access = true
+  }
   enable_cluster_creator_admin_permissions = true
 
   tags = {
@@ -37,13 +39,13 @@ module "eks" {
 
   eks_managed_node_groups = {
     worker-nodes = {
-      min_size     = 1
-      max_size     = 3
-      desired_size = 3
+      min_size       = 1
+      max_size       = 3
+      desired_size   = 2
       instance_types = ["t2.small"]
       key_name       = "may_key"
       launch_template = {
-        elastic_gpu_specifications = null
+        elastic_gpu_specifications    = null
         elastic_inference_accelerator = null
       }
     }
