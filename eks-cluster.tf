@@ -25,6 +25,18 @@ module "eks" {
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = false
 
+  # Enable cluster creator admin permissions
+  enable_cluster_creator_admin_permissions = true
+
+  # Alternative method to ensure creator admin access
+  cluster_admins = {
+    admin = {
+      username = data.aws_caller_identity.current.arn
+      groups   = ["system:masters"]
+    }
+  }
+
+  # Enable IAM Roles for Service Accounts
   enable_irsa = true
 
   eks_managed_node_groups = {
@@ -38,19 +50,12 @@ module "eks" {
       partition      = "aws"
 
       iam_role_additional_policies = {
-        AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        # Add any additional policies if needed
+        # Example:
+        # AmazonS3ReadOnlyAccess = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
       }
     }
   }
-
-  # Map your current IAM user/role for cluster access
-  map_users = [
-    {
-      userarn  = data.aws_caller_identity.current.arn
-      username = split("/", data.aws_caller_identity.current.arn)[1]
-      groups   = ["system:masters"]
-    }
-  ]
 
   tags = {
     Environment = "development"
@@ -69,4 +74,8 @@ output "cluster_endpoint" {
 
 output "cluster_security_group_id" {
   value = module.eks.cluster_security_group_id
+}
+
+output "configure_kubectl" {
+  value = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
 }
