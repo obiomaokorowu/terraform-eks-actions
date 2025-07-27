@@ -19,7 +19,7 @@ output "cluster_id" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "21.0.0"
+  version = "21.0.4"
 
   name               = "app-eks-cluster"  
   kubernetes_version = "1.31"
@@ -27,24 +27,7 @@ module "eks" {
   vpc_id             = module.myapp-vpc.vpc_id
   endpoint_private_access = false
   endpoint_public_access  = true
-  enable_cluster_creator_admin_permissions = false
-
-  access_entries = {
-  admin = {
-    principal_arn     = "arn:aws:iam::361769567498:role/EKSAdminRole"
-    kubernetes_groups = ["system:masters"]
-    type              = "STANDARD"
-    policy_associations = {
-      full = {
-        policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSFullAccessPolicy"
-        access_scope = {
-          type = "cluster"
-        }
-      }
-    }
-  }
-}
-
+  enable_cluster_creator_admin_permissions = true
   tags = {
     environment = "development"
     application = "app"
