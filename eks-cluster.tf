@@ -27,7 +27,7 @@ module "eks" {
   vpc_id             = module.myapp-vpc.vpc_id
   endpoint_private_access = false
   endpoint_public_access  = true
-  enable_cluster_creator_admin_permissions = true
+  enable_cluster_creator_admin_permissions = false
 
   access_entries = {
   admin = {
