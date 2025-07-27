@@ -22,14 +22,15 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.0.0"
 
-  cluster_name       = "app-eks-cluster"  # Use cluster_name instead of name
+  name               = "app-eks-cluster"  # corrected from cluster_name
   kubernetes_version = "1.31"
   subnet_ids         = module.myapp-vpc.private_subnets
   vpc_id             = module.myapp-vpc.vpc_id
 
-  # Replace access_config with these parameters
-  cluster_endpoint_public_access  = true
-  cluster_endpoint_private_access = false
+  access_config = {
+    public_access  = true
+    private_access = false
+  }
 
   enable_cluster_creator_admin_permissions = true
 
@@ -52,5 +53,7 @@ module "eks" {
       }
     }
   }
+
   depends_on = [module.myapp-vpc]
 }
+
