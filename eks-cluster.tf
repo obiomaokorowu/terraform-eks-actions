@@ -25,7 +25,6 @@ module "eks" {
 
   cluster_name = "app-eks-cluster"
   cluster_version = "1.31"
-
   subnet_ids = module.myapp-vpc.private_subnets
   vpc_id = module.myapp-vpc.vpc_id
   cluster_endpoint_public_access = true
@@ -42,9 +41,12 @@ module "eks" {
       min_size     = 1
       max_size     = 3
       desired_size = 3
-
       instance_types = ["t2.small"]
       key_name       = "may_key"
+      launch_template = {
+        elastic_gpu_specifications = null  # Disable
+        elastic_inference_accelerator = null  # Disable
+      }
     }
   }
   depends_on = [module.myapp-vpc]
