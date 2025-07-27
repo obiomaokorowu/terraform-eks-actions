@@ -45,8 +45,11 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -out=tfplan
         
-      - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+#      - name: Terraform Apply
+#        run: terraform apply -auto-approve tfplan
+#        if: github.ref == 'refs/heads/main'
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve tfplan
         if: github.ref == 'refs/heads/main'
 
       - name: Output Cluster Details
