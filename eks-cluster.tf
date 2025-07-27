@@ -16,7 +16,8 @@ data "aws_eks_cluster_auth" "app-cluster" {
 output "cluster_id" {
   value = module.eks.cluster_id
 }
-
+partition  = "aws"
+account_id = "361769567498
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.0.4"
@@ -58,8 +59,6 @@ module "eks" {
       instance_types = ["t2.small"]
       key_name       = "may_key"
       iam_role_additional_policies = {}
-      account_id = "361769567498"
-      partition  = "aws"
       launch_template = {
         elastic_gpu_specifications    = null
         elastic_inference_accelerator = null
