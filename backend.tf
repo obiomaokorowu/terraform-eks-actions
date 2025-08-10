@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
-    bucket = "realcloud-tfstate-bucket-001"
+    bucket = "terraform-reaclcoud-eks-state"
     key    = "eks/terraform.tfstate"
-    region = "us-east-2"
+    region = "us-east-1"
   }
 }

@@ -9,7 +9,7 @@ permissions:
 
 env:
   AWS_REGION: us-east-1
-  BUCKET_NAME: realcloud-tfstate-bucket-001
+  BUCKET_NAME: terraform-reaclcoud-eks-state
   TF_KEY: eks/terraform.tfstate
 
 jobs:
